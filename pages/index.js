@@ -1,6 +1,6 @@
 import appConfig from '../config.json';
 import { Box, Button, Text, TextField, Image } from '@skynexui/components';
-import Background from '../imagens/cthulhu.png';
+import {useRouter} from 'next/router';
 import React from 'react';
 
 // declarando o global style
@@ -82,7 +82,7 @@ export default HomePage
 export default function PaginaInicial() {
   //  const username = 'kleitong1';
     const [username, setUsername]= React.useState('kleitong1');
-    console.log();
+    const rosteamento = useRouter();
     return (
         <>
             <GlobalStyle />
@@ -107,12 +107,20 @@ export default function PaginaInicial() {
                         width: '100%', maxWidth: '550px',
                         borderRadius: '5px', padding: '32px', margin: '16px',
                         boxShadow: '0 2px 10px 0 rgb(0 0 0 / 20%)',
-                        backgroundColor: appConfig.theme.colors.neutrals[700],
+                        backgroundColor: appConfig.theme.colors.neutrals[500],
                     }}
                 >
                     {/* Formulário */}
                     <Box
                         as="form"
+                        onSubmit={function(infosDoEvento){
+                            infosDoEvento.preventDefault();
+                            rosteamento.push('/chat');
+                            
+                            console.log('Alguem submeteu o form');
+                            //chamar a pagina chat 
+                           // window.location.href = '/chat'
+                        }}
                         styleSheet={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                             width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
@@ -137,6 +145,9 @@ export default function PaginaInicial() {
                             /> */}
 
                         <TextField
+                        
+                        // mensagem indicativa
+                        placeholder="Informe seu usuário do Github"
                         value={username}
                         onChange={function (event) {
                             console.log('usuario digitou', event.target.value);
@@ -190,7 +201,14 @@ export default function PaginaInicial() {
                                 borderRadius: '50%',
                                 marginBottom: '16px',
                             }}
-                            src={`https://github.com/${username}.png`}
+                            
+                            src={
+                            username.length > 2
+                           ? `https://github.com/${username}.png`
+                           : Image
+                        }
+                            
+                            
                         />
                         <Text
                             variant="body4"
@@ -201,7 +219,7 @@ export default function PaginaInicial() {
                                 borderRadius: '1000px'
                             }}
                         >
-                            {username}
+                            {username.length > 2 ? username : ""}  
                         </Text>
                     </Box>
                     {/* Photo Area */}
