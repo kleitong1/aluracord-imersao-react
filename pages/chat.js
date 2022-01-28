@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/router';
 import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
 
-
+// Funçao que esconde a chave do projeto em arquivo .env
 export async function getServerSideProps() {
     const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
@@ -20,7 +20,7 @@ export async function getServerSideProps() {
 }
 
 
-  
+  // chamando as variaveis .env em {} 
   export default function ChatPage({ SUPABASE_ANON_KEY, SUPABASE_URL}) {
     const roteamento = useRouter();
     const usuarioLogado = roteamento.query.username;
@@ -28,6 +28,8 @@ export async function getServerSideProps() {
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
 
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+
 
     function escutaMensagensEmTempoReal(adicionaMensagem) {
         return supabaseClient
