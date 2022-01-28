@@ -1,41 +1,113 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
+import { createClient } from '@supabase/supabase-js';
+import { useRouter } from 'next/router';
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
 
-export default function ChatPage() {
+
+export async function getServerSideProps() {
+    const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+
+    const SUPABASE_URL = process.env.SUPABASE_URL
+
+    return {
+        props : {
+            SUPABASE_ANON_KEY,
+            SUPABASE_URL
+        },
+    }
+}
+
+
+  
+  export default function ChatPage({ SUPABASE_ANON_KEY, SUPABASE_URL}) {
+    const roteamento = useRouter();
+    const usuarioLogado = roteamento.query.username;
     const [mensagem, setMensagem] = React.useState('');
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
 
-    /*
-    // Usuário
-    - Usuário digita no campo textarea
-    - Aperta enter para enviar
-    - Tem que adicionar o texto na listagem
-    
-    // Dev
-    - [X] Campo criado
-    - [X] Vamos usar o onChange usa o useState (ter if pra caso seja enter pra limpar a variavel)
-    - [X] Lista de mensagens 
-    */
-    function handleNovaMensagem(novaMensagem) {
-        const mensagem = {
-            id: listaDeMensagens.length + 1,
-            de: 'kleitong1',
-            texto: novaMensagem
-        };
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-        setListaDeMensagens([
-            mensagem,
-            ...listaDeMensagens,
-        ]);
-        setMensagem('');
+    function escutaMensagensEmTempoReal(adicionaMensagem) {
+        return supabaseClient
+          .from('mensagens')
+          .on('INSERT', (respostaLive) => {
+            adicionaMensagem(respostaLive.new);
+          })
+          .subscribe();
+      }
+
+  
+    React.useEffect(() => {
+      supabaseClient
+        .from('mensagens')
+        .select('*')
+        .order('id', { ascending: false })
+        .then(({ data }) => {
+          // console.log('Dados da consulta:', data);
+          setListaDeMensagens(data);
+        });
+
+
+
+
+  
+      const subscription = escutaMensagensEmTempoReal((novaMensagem) => {
+        console.log('Nova mensagem:', novaMensagem);
+        console.log('listaDeMensagens:', listaDeMensagens);
+     
+
+
+
+
+        setListaDeMensagens((valorAtualDaLista) => {
+          console.log('valorAtualDaLista:', valorAtualDaLista);
+          return [
+            novaMensagem,
+            ...valorAtualDaLista,
+          ]
+        });
+      });
+
+
+
+  
+      return () => {
+        subscription.unsubscribe();
+      }
+    }, []);
+  
+
+
+
+    function handleNovaMensagem(novaMensagem) {
+      const mensagem = {
+        // id: listaDeMensagens.length + 1,
+        de: usuarioLogado,
+        texto: novaMensagem,
+      };
+  
+
+
+      supabaseClient
+        .from('mensagens')
+        .insert([
+          // Tem que ser um objeto com os MESMOS CAMPOS que você escreveu no supabase
+          mensagem
+        ])
+        .then(({ data }) => {
+          console.log('Criando mensagem: ', data);
+        });
+  
+      setMensagem('');
     }
 
     return (
         <Box
             styleSheet={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-             // backgroundColor: appConfig.theme.colors.primary[500],
+                // backgroundColor: appConfig.theme.colors.primary[500],
                 backgroundImage: `url(https://virtualbackgrounds.site/wp-content/uploads/2020/07/bookshelf-at-dunster-house-library.jpg)`,
                 backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
                 color: appConfig.theme.colors.neutrals['000']
@@ -92,7 +164,7 @@ export default function ChatPage() {
                             onKeyPress={(event) => {
                                 if (event.key === 'Enter') {
                                     event.preventDefault();
-                                    handleNovaMensagem(mensagem);
+                                    handleNovaMensagem(mensagem)
                                 }
                             }}
                             placeholder="Insira sua mensagem aqui..."
@@ -107,6 +179,15 @@ export default function ChatPage() {
                                 marginRight: '12px',
                                 color: appConfig.theme.colors.neutrals[200],
                             }}
+                        />
+
+                        {/* CallBack */}
+                        <ButtonSendSticker
+                        
+                        onStickerClick={(sticker) => {
+                            handleNovaMensagem(':sticker:' + sticker);
+                        }}    
+
                         />
                     </Box>
                 </Box>
@@ -139,7 +220,7 @@ function MessageList(props) {
         <Box
             tag="ul"
             styleSheet={{
-                overflow: 'hidden',
+                overflow: 'auto',
                 display: 'flex',
                 flexDirection: 'column-reverse',
                 flex: 1,
@@ -174,11 +255,12 @@ function MessageList(props) {
                                     display: 'inline-block',
                                     marginRight: '8px',
                                 }}
-                                src={`https://github.com/kleitong1.png`}
+                                src={`https://github.com/${mensagem.de}.png`}
                             />
                             <Text tag="strong">
                                 {mensagem.de}
                             </Text>
+
                             <Text
                                 styleSheet={{
                                     fontSize: '10px',
@@ -186,11 +268,27 @@ function MessageList(props) {
                                     color: appConfig.theme.colors.neutrals[300],
                                 }}
                                 tag="span"
-                            >
+                            > 
                                 {(new Date().toLocaleDateString())}
                             </Text>
                         </Box>
-                        {mensagem.texto}
+                        {/* {Declarativo} */}
+                        {/* Condicional: {mensagem.texto.startsWith(':sticker:').toString()} */}
+                        {mensagem.texto.startsWith(':sticker:')
+                            ? (
+                                <Image src={mensagem.texto.replace(':sticker:', '')} 
+                                styleSheet={{
+                                    width: '150px'
+                                }}
+                                
+                                />
+                            )
+                            : (
+                                mensagem.texto
+                            )}
+
+
+                        
                     </Text>
                 );
             })}

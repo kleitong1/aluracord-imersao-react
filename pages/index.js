@@ -115,9 +115,10 @@ export default function PaginaInicial() {
                         as="form"
                         onSubmit={function(infosDoEvento){
                             infosDoEvento.preventDefault();
-                            rosteamento.push('/chat');
+                          //  rosteamento.push('/chat?username=' + username);
+                            rosteamento.push(`/chat?username=${username}`);
                             
-                            console.log('Alguem submeteu o form');
+                         //   console.log('Alguem submeteu o form');
                             //chamar a pagina chat 
                            // window.location.href = '/chat'
                         }}
