@@ -105,12 +105,14 @@ export async function getServerSideProps() {
       setMensagem('');
     }
 
+    
+
     return (
         <Box
             styleSheet={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 // backgroundColor: appConfig.theme.colors.primary[500],
-                backgroundImage: `url(https://virtualbackgrounds.site/wp-content/uploads/2020/07/bookshelf-at-dunster-house-library.jpg)`,
+                backgroundImage: 'url(/imagens/monstrao.jpg)',
                 backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
                 color: appConfig.theme.colors.neutrals['000']
             }}
@@ -122,7 +124,7 @@ export async function getServerSideProps() {
                     flex: 1,
                     boxShadow: '0 2px 10px 0 rgb(0 0 0 / 20%)',
                     borderRadius: '5px',
-                    backgroundColor: appConfig.theme.colors.neutrals[700],
+                    backgroundColor: appConfig.theme.colors.primary[700],
                     height: '100%',
                     maxWidth: '60%',
                     maxHeight: '95vh',
@@ -136,7 +138,7 @@ export async function getServerSideProps() {
                         display: 'flex',
                         flex: 1,
                         height: '80%',
-                        backgroundColor: appConfig.theme.colors.neutrals[600],
+                        backgroundColor: appConfig.theme.colors.primary[600],
                         flexDirection: 'column',
                         borderRadius: '5px',
                         padding: '16px',
@@ -177,9 +179,9 @@ export async function getServerSideProps() {
                                 resize: 'none',
                                 borderRadius: '5px',
                                 padding: '6px 8px',
-                                backgroundColor: appConfig.theme.colors.neutrals[800],
+                                backgroundColor: appConfig.theme.colors.neutrals[500],
                                 marginRight: '12px',
-                                color: appConfig.theme.colors.neutrals[200],
+                                color: appConfig.theme.colors.primary[900],
                             }}
                         />
 
@@ -207,7 +209,7 @@ function Header() {
                 </Text>
                 <Button
                     variant='tertiary'
-                    colorVariant='neutral'
+                    colorVariant='light'
                     label='Logout'
                     href="/"
                 />
